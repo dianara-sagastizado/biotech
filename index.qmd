@@ -1,0 +1,13 @@
+---
+title: "Biotech Industry Map"
+format:
+  html:
+    theme: cosmo
+    page-layout: full
+---
+
+::: {.lead}
+The goal of this website is to connect students to a network of biotech companies throughout the Portland metro area. Our hope is to expand this opportunity to students across disciplines.
+:::
+
+This website was created by Dianara Sagastizado in collaboration with Dr. Jean Phillipe-Gourdine, Lewis and Clark College's Assistant Professor of Chemistry,and Jeremy McWilliams, Watzek Library's Head of Digital Initiatives. Funding for this website was provided by a grant awarded to Dr. Jean Phillipe-Gourdine from the National Science Foundation (NSF-LEAPS) Award ID 2532889.

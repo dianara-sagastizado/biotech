@@ -1,0 +1,295 @@
+---
+title: "Interactive Map"
+format: 
+  html:
+    embed-resources: true
+    code-fold: true
+---
+
+```{ojs}
+//| echo: false
+
+// Import D3 and TopoJSON
+d3 = require("d3")
+
+
+topojson = require("topojson")
+
+usData = d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json')
+
+portlandMetroFips = [
+  "41051",
+  "41005",
+  "41067",
+  "41071",
+  "41009",
+  "53011",
+  "53059"
+]
+
+portlandCounties = topojson.feature(usData, usData.objects.counties).features.filter(d => 
+  portlandMetroFips.includes(d.id)
+)
+
+portlandRegion = ({
+  type: "FeatureCollection",
+  features: portlandCounties
+})
+
+width = 800
+
+height = 700
+
+projection = d3.geoMercator().fitSize([width, height], portlandRegion)
+
+path = d3.geoPath().projection(projection)
+
+biotechData = FileAttachment("biotech.csv").csv({typed: true})
+
+chart = {
+  function wrapText(text, width) {
+    const words = text.split(/\s+/);
+    const lines = [];
+    let currentLine = [];
+    
+    words.forEach(word => {
+      currentLine.push(word);
+      const testLine = currentLine.join(" ");
+      if (testLine.length * 5.5 > width) {
+        currentLine.pop();
+        lines.push(currentLine.join(" "));
+        currentLine = [word];
+      }
+    });
+    lines.push(currentLine.join(" "));
+    return lines;
+  }
+
+  const colors = {
+    "Immunotherapy": "#e74c3c",
+    "Diagnostic": "#3498db",
+    "Health": "#2ecc71",
+    "Pharmaceutical": "#9b59b6",
+    "Pharmecutical": "#9b59b6",
+    "Medical device": "#f39c12",
+    "Data science": "#1abc9c"
+  };
+
+  const container = d3.create("div")
+    .style("display", "flex")
+    .style("gap", "20px")
+    .style("align-items", "flex-end");
+  
+  const filterContainer = container.append("div")
+    .style("background", "white")
+    .style("padding", "15px")
+    .style("border", "2px solid #333")
+    .style("border-radius", "8px")
+    .style("font-family", "Arial, sans-serif")
+    .style("min-width", "200px");
+
+  filterContainer.append("div")
+    .style("font-weight", "bold")
+    .style("margin-bottom", "10px")
+    .style("font-size", "14px")
+    .text("Filter by Specialty:");
+
+  const mapContainer = container.append("div");
+  
+  mapContainer.append("h2")
+    .style("text-align", "center")
+    .style("font-size", "24px")
+    .style("font-weight", "bold")
+    .style("color", "#333")
+    .style("margin-bottom", "20px")
+    .text("Portland Metro Biotech Companies");
+  
+  const svg = mapContainer.append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("viewBox", [0, 0, width, height]);
+
+  svg.append("rect")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("fill", "#f0f0f0");
+
+  svg.append("g")
+    .selectAll("path")
+    .data(portlandCounties)
+    .join("path")
+    .attr("d", path)
+    .attr("fill", "#e8f4f8")
+    .attr("stroke", "#333")
+    .attr("stroke-width", 1.5)
+    .on("mouseenter", function() {
+      d3.select(this).attr("fill", "#a8d5e2").attr("stroke-width", 2.5);
+    })
+    .on("mouseleave", function() {
+      d3.select(this).attr("fill", "#e8f4f8").attr("stroke-width", 1.5);
+    })
+    .append("title")
+    .text(d => {
+      const names = {
+        "41051": "Multnomah County, OR",
+        "41005": "Clackamas County, OR",
+        "41067": "Washington County, OR",
+        "41071": "Yamhill County, OR",
+        "41009": "Columbia County, OR",
+        "53011": "Clark County, WA",
+      };
+      return names[d.id] || d.id;
+    });
+
+  const infoPanel = svg.append("g")
+    .attr("class", "info-panel")
+    .attr("transform", `translate(${width - 320}, 60)`)
+    .style("opacity", 0);
+
+  const panelBackground = infoPanel.append("rect")
+    .attr("width", 300)
+    .attr("height", 280)
+    .attr("fill", "white")
+    .attr("stroke", "#333")
+    .attr("stroke-width", 2)
+    .attr("rx", 8)
+    .attr("filter", "drop-shadow(0 4px 6px rgba(0,0,0,0.1))");
+
+  const panelTitle = infoPanel.append("text")
+    .attr("x", 150).attr("y", 25).attr("text-anchor", "middle")
+    .attr("font-size", "16px").attr("font-weight", "bold").attr("fill", "#333");
+
+  const panelWebsite = infoPanel.append("text")
+    .attr("x", 150).attr("y", 45).attr("text-anchor", "middle")
+    .attr("font-size", "11px").attr("fill", "#3498db").style("cursor", "pointer");
+
+  const panelYear = infoPanel.append("text")
+    .attr("x", 15).attr("y", 70).attr("font-size", "12px").attr("fill", "#666");
+
+  const panelSpecialty = infoPanel.append("text")
+    .attr("x", 15).attr("y", 90).attr("font-size", "12px").attr("fill", "#666");
+
+  const panelLocation = infoPanel.append("text")
+    .attr("x", 15).attr("y", 110).attr("font-size", "12px").attr("fill", "#666");
+
+  const panelEmail = infoPanel.append("text")
+    .attr("x", 15).attr("y", 130).attr("font-size", "11px").attr("fill", "#3498db");
+
+  const panelPhone = infoPanel.append("text")
+    .attr("x", 15).attr("y", 150).attr("font-size", "11px").attr("fill", "#666");
+
+  const panelBio = infoPanel.append("text")
+    .attr("x", 15).attr("y", 175).attr("font-size", "10px").attr("fill", "#555");
+
+  const circles = svg.append("g")
+    .selectAll("circle")
+    .data(biotechData)
+    .join("circle")
+    .attr("cx", d => projection([d.Longitude, d.Latitude])[0])
+    .attr("cy", d => projection([d.Longitude, d.Latitude])[1])
+    .attr("r", 6)
+    .attr("fill", d => colors[d.Specialty] || "#95a5a6")
+    .attr("stroke", "white")
+    .attr("stroke-width", 1.5)
+    .attr("opacity", 0.8)
+    .style("cursor", "pointer")
+    .on("click", function(event, d) {
+ // Toggle panel - if already showing this company, hide it
+    const isVisible = infoPanel.style("opacity") == 1;
+    const isSameCompany = panelTitle.text() === (d.Name || "Unknown");
+    
+    if (isVisible && isSameCompany) {
+      // Close the panel
+      infoPanel.transition().duration(200).style("opacity", 0);
+      d3.select(this).attr("r", 6).attr("stroke-width", 1.5);
+      return;
+    }
+    
+    // Reset all circles
+    circles.attr("r", 6).attr("stroke-width", 1.5);
+    
+    // Highlight clicked circle
+    d3.select(this).attr("r", 10).attr("stroke-width", 3);
+
+      panelTitle.text(d.Name || "Unknown");
+      panelWebsite.text(d.Website ? "Visit Website" : "")
+        .on("click", () => { if (d.Website) window.open(d.Website, '_blank'); });
+      panelYear.text(`Founded: ${d["Year founded"] || "N/A"}`);
+      panelSpecialty.text(`Specialty: ${d.Specialty || "N/A"}`);
+      panelLocation.text(`Location: ${d.City}, ${d.State} ${d["Zip code"]}`);
+      panelEmail.text(`Email: ${d.Email || "N/A"}`);
+      panelPhone.text(`Phone: ${d.Phone || "N/A"}`);
+
+      panelBio.selectAll("*").remove();
+      
+      let bioLineCount = 0;
+      if (d.Bio) {
+        const bioLines = wrapText(d.Bio, 270);
+        bioLineCount = bioLines.length;
+        bioLines.forEach((line, i) => {
+          panelBio.append("tspan")
+            .attr("x", 15)
+            .attr("dy", i === 0 ? 0 : 12)
+            .text(line);
+        });
+      }
+      
+      const dynamicHeight = 195 + (bioLineCount * 12)
+      panelBackground.transition().duration(200).attr("height", Math.max(280, dynamicHeight));
+    infoPanel.transition().duration(200).style("opacity", 1);
+  });
+  
+  // Add close button
+const closeButton = infoPanel.append("text")
+  .attr("x", 285)
+  .attr("y", 20)
+  .attr("text-anchor", "middle")
+  .attr("font-size", "20px")
+  .attr("font-weight", "bold")
+  .attr("fill", "#666")
+  .style("cursor", "pointer")
+  .text("×")
+  .on("click", function() {
+    infoPanel.transition().duration(200).style("opacity", 0);
+    circles.attr("r", 6).attr("stroke-width", 1.5);
+  });
+
+  const specialties = [
+    {name: "All", color: "#95a5a6"},
+    {name: "Immunotherapy", color: "#e74c3c"},
+    {name: "Diagnostic", color: "#3498db"},
+    {name: "Health", color: "#2ecc71"},
+    {name: "Pharmaceutical", color: "#9b59b6"},
+    {name: "Medical device", color: "#f39c12"},
+    {name: "Data science", color: "#1abc9c"}
+  ];
+
+  specialties.forEach((s, i) => {
+    const label = filterContainer.append("label")
+      .style("display", "flex").style("align-items", "center")
+      .style("margin-bottom", "8px").style("cursor", "pointer");
+
+    label.append("input")
+      .attr("type", "radio").attr("name", "specialty-filter")
+      .attr("value", s.name).property("checked", i === 0)
+      .style("margin-right", "8px")
+      .on("change", function() {
+        const sel = this.value;
+        circles.transition().duration(300)
+          .style("opacity", d => sel === "All" || d.Specialty === sel || (sel === "Pharmaceutical" && d.Specialty === "Pharmecutical") ? 0.8 : 0.1)
+          .attr("r", d => sel === "All" || d.Specialty === sel || (sel === "Pharmaceutical" && d.Specialty === "Pharmecutical") ? 6 : 3);
+      });
+
+    label.append("span")
+      .style("width", "12px").style("height", "12px")
+      .style("background-color", s.color).style("border-radius", "50%")
+      .style("display", "inline-block").style("margin-right", "8px")
+      .style("border", "1px solid white");
+
+    label.append("span").text(s.name);
+  });
+
+  return container.node();
+}
+```
+

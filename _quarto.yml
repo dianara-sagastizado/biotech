@@ -1,0 +1,23 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Portland Metro Area Biotech Industry Map"
+  search: false
+  sidebar:
+    style: "docked"
+    contents:
+      - href: index.qmd
+        text: About
+      - href: map.qmd 
+        text: Map
+      - href: methods.qmd 
+        text: Methods
+     
+format:
+  html:
+    theme: cosmos
+    css: style.css
+    toc: true
+    code-fold: true
