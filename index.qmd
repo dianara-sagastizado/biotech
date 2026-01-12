@@ -6,7 +6,6 @@ format:
     code-fold: true
 project:
   type: website
-  output-dir: docs
 ---
 
 ::: {.lead}
