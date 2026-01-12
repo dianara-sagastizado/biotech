@@ -1,0 +1,41 @@
+name: Update Biotech Data and Render
+
+on:
+  schedule:
+    # Runs every day at 6 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:  # Allows manual triggering
+  push:
+    branches:
+      - main
+
+jobs:
+  update-and-render:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+        
+      - name: Install R packages
+        run: |
+          install.packages(c("googlesheets4", "readr"))
+        shell: Rscript {0}
+      
+      - name: Fetch data from Google Sheets
+        run: Rscript fetch_data.R
+        
+      - name: Setup Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        
+      - name: Render Quarto document
+        run: quarto render your-document.qmd
+        
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./_site
