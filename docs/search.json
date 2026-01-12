@@ -1,0 +1,62 @@
+[
+  {
+    "objectID": "map.html",
+    "href": "map.html",
+    "title": "Interactive Map",
+    "section": "",
+    "text": "Code\nd3 = require(\"d3\")\n\n\ntopojson = require(\"topojson\")\n\nusData = d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json')\n\nportlandMetroFips = [\n  \"41051\",\n  \"41005\",\n  \"41067\",\n  \"41071\",\n  \"41009\",\n  \"53011\",\n  \"53059\"\n]\n\nportlandCounties = topojson.feature(usData, usData.objects.counties).features.filter(d =&gt; \n  portlandMetroFips.includes(d.id)\n)\n\nportlandRegion = ({\n  type: \"FeatureCollection\",\n  features: portlandCounties\n})\n\nwidth = 800\n\nheight = 700\n\nprojection = d3.geoMercator().fitSize([width, height], portlandRegion)\n\npath = d3.geoPath().projection(projection)\n\nbiotechData = FileAttachment(\"biotech.csv\").csv({typed: true})\n\nchart = {\n  function wrapText(text, width) {\n    const words = text.split(/\\s+/);\n    const lines = [];\n    let currentLine = [];\n    \n    words.forEach(word =&gt; {\n      currentLine.push(word);\n      const testLine = currentLine.join(\" \");\n      if (testLine.length * 5.5 &gt; width) {\n        currentLine.pop();\n        lines.push(currentLine.join(\" \"));\n        currentLine = [word];\n      }\n    });\n    lines.push(currentLine.join(\" \"));\n    return lines;\n  }\n\n  const colors = {\n    \"Immunotherapy\": \"#e74c3c\",\n    \"Diagnostic\": \"#3498db\",\n    \"Health\": \"#2ecc71\",\n    \"Pharmaceutical\": \"#9b59b6\",\n    \"Pharmecutical\": \"#9b59b6\",\n    \"Medical device\": \"#f39c12\",\n    \"Data science\": \"#1abc9c\"\n  };\n\n  const container = d3.create(\"div\")\n    .style(\"display\", \"flex\")\n    .style(\"gap\", \"20px\")\n    .style(\"align-items\", \"flex-end\");\n  \n  const filterContainer = container.append(\"div\")\n    .style(\"background\", \"white\")\n    .style(\"padding\", \"15px\")\n    .style(\"border\", \"2px solid #333\")\n    .style(\"border-radius\", \"8px\")\n    .style(\"font-family\", \"Arial, sans-serif\")\n    .style(\"min-width\", \"200px\");\n\n  filterContainer.append(\"div\")\n    .style(\"font-weight\", \"bold\")\n    .style(\"margin-bottom\", \"10px\")\n    .style(\"font-size\", \"14px\")\n    .text(\"Filter by Specialty:\");\n\n  const mapContainer = container.append(\"div\");\n  \n  mapContainer.append(\"h2\")\n    .style(\"text-align\", \"center\")\n    .style(\"font-size\", \"24px\")\n    .style(\"font-weight\", \"bold\")\n    .style(\"color\", \"#333\")\n    .style(\"margin-bottom\", \"20px\")\n    .text(\"Portland Metro Biotech Companies\");\n  \n  const svg = mapContainer.append(\"svg\")\n    .attr(\"width\", width)\n    .attr(\"height\", height)\n    .attr(\"viewBox\", [0, 0, width, height]);\n\n  svg.append(\"rect\")\n    .attr(\"width\", width)\n    .attr(\"height\", height)\n    .attr(\"fill\", \"#f0f0f0\");\n\n  svg.append(\"g\")\n    .selectAll(\"path\")\n    .data(portlandCounties)\n    .join(\"path\")\n    .attr(\"d\", path)\n    .attr(\"fill\", \"#e8f4f8\")\n    .attr(\"stroke\", \"#333\")\n    .attr(\"stroke-width\", 1.5)\n    .on(\"mouseenter\", function() {\n      d3.select(this).attr(\"fill\", \"#a8d5e2\").attr(\"stroke-width\", 2.5);\n    })\n    .on(\"mouseleave\", function() {\n      d3.select(this).attr(\"fill\", \"#e8f4f8\").attr(\"stroke-width\", 1.5);\n    })\n    .append(\"title\")\n    .text(d =&gt; {\n      const names = {\n        \"41051\": \"Multnomah County, OR\",\n        \"41005\": \"Clackamas County, OR\",\n        \"41067\": \"Washington County, OR\",\n        \"41071\": \"Yamhill County, OR\",\n        \"41009\": \"Columbia County, OR\",\n        \"53011\": \"Clark County, WA\",\n      };\n      return names[d.id] || d.id;\n    });\n\n  const infoPanel = svg.append(\"g\")\n    .attr(\"class\", \"info-panel\")\n    .attr(\"transform\", `translate(${width - 320}, 60)`)\n    .style(\"opacity\", 0);\n\n  const panelBackground = infoPanel.append(\"rect\")\n    .attr(\"width\", 300)\n    .attr(\"height\", 280)\n    .attr(\"fill\", \"white\")\n    .attr(\"stroke\", \"#333\")\n    .attr(\"stroke-width\", 2)\n    .attr(\"rx\", 8)\n    .attr(\"filter\", \"drop-shadow(0 4px 6px rgba(0,0,0,0.1))\");\n\n  const panelTitle = infoPanel.append(\"text\")\n    .attr(\"x\", 150).attr(\"y\", 25).attr(\"text-anchor\", \"middle\")\n    .attr(\"font-size\", \"16px\").attr(\"font-weight\", \"bold\").attr(\"fill\", \"#333\");\n\n  const panelWebsite = infoPanel.append(\"text\")\n    .attr(\"x\", 150).attr(\"y\", 45).attr(\"text-anchor\", \"middle\")\n    .attr(\"font-size\", \"11px\").attr(\"fill\", \"#3498db\").style(\"cursor\", \"pointer\");\n\n  const panelYear = infoPanel.append(\"text\")\n    .attr(\"x\", 15).attr(\"y\", 70).attr(\"font-size\", \"12px\").attr(\"fill\", \"#666\");\n\n  const panelSpecialty = infoPanel.append(\"text\")\n    .attr(\"x\", 15).attr(\"y\", 90).attr(\"font-size\", \"12px\").attr(\"fill\", \"#666\");\n\n  const panelLocation = infoPanel.append(\"text\")\n    .attr(\"x\", 15).attr(\"y\", 110).attr(\"font-size\", \"12px\").attr(\"fill\", \"#666\");\n\n  const panelEmail = infoPanel.append(\"text\")\n    .attr(\"x\", 15).attr(\"y\", 130).attr(\"font-size\", \"11px\").attr(\"fill\", \"#3498db\");\n\n  const panelPhone = infoPanel.append(\"text\")\n    .attr(\"x\", 15).attr(\"y\", 150).attr(\"font-size\", \"11px\").attr(\"fill\", \"#666\");\n\n  const panelBio = infoPanel.append(\"text\")\n    .attr(\"x\", 15).attr(\"y\", 175).attr(\"font-size\", \"10px\").attr(\"fill\", \"#555\");\n\n  const circles = svg.append(\"g\")\n    .selectAll(\"circle\")\n    .data(biotechData)\n    .join(\"circle\")\n    .attr(\"cx\", d =&gt; projection([d.Longitude, d.Latitude])[0])\n    .attr(\"cy\", d =&gt; projection([d.Longitude, d.Latitude])[1])\n    .attr(\"r\", 6)\n    .attr(\"fill\", d =&gt; colors[d.Specialty] || \"#95a5a6\")\n    .attr(\"stroke\", \"white\")\n    .attr(\"stroke-width\", 1.5)\n    .attr(\"opacity\", 0.8)\n    .style(\"cursor\", \"pointer\")\n    .on(\"click\", function(event, d) {\n // Toggle panel - if already showing this company, hide it\n    const isVisible = infoPanel.style(\"opacity\") == 1;\n    const isSameCompany = panelTitle.text() === (d.Name || \"Unknown\");\n    \n    if (isVisible && isSameCompany) {\n      // Close the panel\n      infoPanel.transition().duration(200).style(\"opacity\", 0);\n      d3.select(this).attr(\"r\", 6).attr(\"stroke-width\", 1.5);\n      return;\n    }\n    \n    // Reset all circles\n    circles.attr(\"r\", 6).attr(\"stroke-width\", 1.5);\n    \n    // Highlight clicked circle\n    d3.select(this).attr(\"r\", 10).attr(\"stroke-width\", 3);\n\n      panelTitle.text(d.Name || \"Unknown\");\n      panelWebsite.text(d.Website ? \"Visit Website\" : \"\")\n        .on(\"click\", () =&gt; { if (d.Website) window.open(d.Website, '_blank'); });\n      panelYear.text(`Founded: ${d[\"Year founded\"] || \"N/A\"}`);\n      panelSpecialty.text(`Specialty: ${d.Specialty || \"N/A\"}`);\n      panelLocation.text(`Location: ${d.City}, ${d.State} ${d[\"Zip code\"]}`);\n      panelEmail.text(`Email: ${d.Email || \"N/A\"}`);\n      panelPhone.text(`Phone: ${d.Phone || \"N/A\"}`);\n\n      panelBio.selectAll(\"*\").remove();\n      \n      let bioLineCount = 0;\n      if (d.Bio) {\n        const bioLines = wrapText(d.Bio, 270);\n        bioLineCount = bioLines.length;\n        bioLines.forEach((line, i) =&gt; {\n          panelBio.append(\"tspan\")\n            .attr(\"x\", 15)\n            .attr(\"dy\", i === 0 ? 0 : 12)\n            .text(line);\n        });\n      }\n      \n      const dynamicHeight = 195 + (bioLineCount * 12)\n      panelBackground.transition().duration(200).attr(\"height\", Math.max(280, dynamicHeight));\n    infoPanel.transition().duration(200).style(\"opacity\", 1);\n  });\n  \n  // Add close button\nconst closeButton = infoPanel.append(\"text\")\n  .attr(\"x\", 285)\n  .attr(\"y\", 20)\n  .attr(\"text-anchor\", \"middle\")\n  .attr(\"font-size\", \"20px\")\n  .attr(\"font-weight\", \"bold\")\n  .attr(\"fill\", \"#666\")\n  .style(\"cursor\", \"pointer\")\n  .text(\"×\")\n  .on(\"click\", function() {\n    infoPanel.transition().duration(200).style(\"opacity\", 0);\n    circles.attr(\"r\", 6).attr(\"stroke-width\", 1.5);\n  });\n\n  const specialties = [\n    {name: \"All\", color: \"#95a5a6\"},\n    {name: \"Immunotherapy\", color: \"#e74c3c\"},\n    {name: \"Diagnostic\", color: \"#3498db\"},\n    {name: \"Health\", color: \"#2ecc71\"},\n    {name: \"Pharmaceutical\", color: \"#9b59b6\"},\n    {name: \"Medical device\", color: \"#f39c12\"},\n    {name: \"Data science\", color: \"#1abc9c\"}\n  ];\n\n  specialties.forEach((s, i) =&gt; {\n    const label = filterContainer.append(\"label\")\n      .style(\"display\", \"flex\").style(\"align-items\", \"center\")\n      .style(\"margin-bottom\", \"8px\").style(\"cursor\", \"pointer\");\n\n    label.append(\"input\")\n      .attr(\"type\", \"radio\").attr(\"name\", \"specialty-filter\")\n      .attr(\"value\", s.name).property(\"checked\", i === 0)\n      .style(\"margin-right\", \"8px\")\n      .on(\"change\", function() {\n        const sel = this.value;\n        circles.transition().duration(300)\n          .style(\"opacity\", d =&gt; sel === \"All\" || d.Specialty === sel || (sel === \"Pharmaceutical\" && d.Specialty === \"Pharmecutical\") ? 0.8 : 0.1)\n          .attr(\"r\", d =&gt; sel === \"All\" || d.Specialty === sel || (sel === \"Pharmaceutical\" && d.Specialty === \"Pharmecutical\") ? 6 : 3);\n      });\n\n    label.append(\"span\")\n      .style(\"width\", \"12px\").style(\"height\", \"12px\")\n      .style(\"background-color\", s.color).style(\"border-radius\", \"50%\")\n      .style(\"display\", \"inline-block\").style(\"margin-right\", \"8px\")\n      .style(\"border\", \"1px solid white\");\n\n    label.append(\"span\").text(s.name);\n  });\n\n  return container.node();\n}",
+    "crumbs": [
+      "Map"
+    ]
+  },
+  {
+    "objectID": "methods.html",
+    "href": "methods.html",
+    "title": "Methods",
+    "section": "",
+    "text": "A preliminary list was generated by using a combination of Google search, and the startups supported by the Oregon Bioscience Incubator. The coordinates were generating using a website, GPS Coordinate Converter, that converts an input address into a set of longitude and latitude coordinates. Information about each company was gathered on their respective website.",
+    "crumbs": [
+      "Methods"
+    ]
+  },
+  {
+    "objectID": "methods.html#generating-a-list-of-biotech-companies",
+    "href": "methods.html#generating-a-list-of-biotech-companies",
+    "title": "Methods",
+    "section": "",
+    "text": "A preliminary list was generated by using a combination of Google search, and the startups supported by the Oregon Bioscience Incubator. The coordinates were generating using a website, GPS Coordinate Converter, that converts an input address into a set of longitude and latitude coordinates. Information about each company was gathered on their respective website.",
+    "crumbs": [
+      "Methods"
+    ]
+  },
+  {
+    "objectID": "methods.html#creating-a-map",
+    "href": "methods.html#creating-a-map",
+    "title": "Methods",
+    "section": "Creating a map",
+    "text": "Creating a map\nIn creating a map, a series of video tutorials, as well as the assistance of Claude AI.",
+    "crumbs": [
+      "Methods"
+    ]
+  },
+  {
+    "objectID": "methods.html#updating-the-map",
+    "href": "methods.html#updating-the-map",
+    "title": "Methods",
+    "section": "Updating the map",
+    "text": "Updating the map",
+    "crumbs": [
+      "Methods"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Biotech Industry Map",
+    "section": "",
+    "text": "The goal of this website is to connect students to a network of biotech companies throughout the Portland metro area. Our hope is to expand this opportunity to students across disciplines.\n\nThis website was created by Dianara Sagastizado in collaboration with Dr. Jean Phillipe-Gourdine, Lewis and Clark College’s Assistant Professor of Chemistry,and Jeremy McWilliams, Watzek Library’s Head of Digital Initiatives. Funding for this website was provided by a grant awarded to Dr. Jean Phillipe-Gourdine from the National Science Foundation (NSF-LEAPS) Award ID 2532889.",
+    "crumbs": [
+      "About"
+    ]
+  }
+]
