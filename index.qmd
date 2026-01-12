@@ -1,9 +1,12 @@
 ---
 title: "Biotech Industry Map"
-format:
+format: 
   html:
-    theme: cosmo
-    page-layout: full
+    embed-resources: true
+    code-fold: true
+project:
+  type: website
+  output-dir: docs
 ---
 
 ::: {.lead}

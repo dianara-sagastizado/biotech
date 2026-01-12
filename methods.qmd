@@ -1,6 +1,14 @@
 ---
+---
 title: "Methods"
-format: html
+format: 
+  html:
+    embed-resources: true
+    code-fold: true
+project:
+  type: website
+  output-dir: docs
+---
 ---
 
 ## Generating a list of biotech companies

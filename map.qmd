@@ -4,6 +4,7 @@ format:
   html:
     embed-resources: true
     code-fold: true
+    output-file: docs/index.html
 ---
 
 ```{ojs}
