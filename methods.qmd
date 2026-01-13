@@ -17,4 +17,4 @@ Information about each company was gathered on their respective website.
 In creating a map, a series of video tutorials were used to create an outline of the map. The assistance of Claude AI was used to create the interactive radio buttons for different biotech specialties.
 
 ## Updating the map
-This site may be updated by accessing a master spreadsheet. Using GitHub Actions, the site will automatically update at 6 AM UTC.
+This site may be updated by accessing a master spreadsheet. Using GitHub Actions, the site will automatically update at 7 PM PST based on changes made in the spreadsheet.
