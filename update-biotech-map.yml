@@ -3,7 +3,7 @@ name: Update Biotech Data and Render
 on:
   schedule:
     # Runs every day at 6 AM UTC
-    - cron: '40 0 * * *'
+    - cron: '1 0 * * *'
   workflow_dispatch:  # Allows manual triggering
   push:
     branches:
