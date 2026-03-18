@@ -1,41 +1,41 @@
-name: Update Biotech Data and Render
+name: Update and Deploy Site
 
 on:
   schedule:
-    # Runs every day at 6 AM UTC
-    - cron: '3 0 * * *'
-  workflow_dispatch:  # Allows manual triggering
+    - cron: '0 11 * * *'  # 11 AM UTC = 6 AM EST
+  workflow_dispatch:
   push:
     branches:
       - main
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
-  update-and-render:
+  build-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
-      - name: Setup R
-        uses: r-lib/actions/setup-r@v2
-        
-      - name: Install R packages
+      - name: Download latest data from Google Sheets
         run: |
-          install.packages(c("googlesheets4", "readr"))
-        shell: Rscript {0}
-      
-      - name: Fetch data from Google Sheets
-        run: Rscript fetch_data.R
-        
+          curl -L "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHs1pWzj8NvQSCiQMkK6O8PnBS5mNtWIh1ImBzr6QJcKbZQruc1bZwtSnR5_0yLmtZe3TW4zgE7IPw/pub?gid=0&single=true&output=csv" -o biotech.csv
+          
       - name: Setup Quarto
         uses: quarto-dev/quarto-actions/setup@v2
         
-      - name: Render Quarto document
-        run: quarto render your-document.qmd
+      - name: Render Quarto site
+        run: quarto render
         
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./_site
+          path: docs/
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
