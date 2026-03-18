@@ -23,8 +23,7 @@ jobs:
       
       - name: Download latest data from Google Sheets
         run: |
-          curl -L "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHs1pWzj8NvQSCiQMkK6O8PnBS5mNtWIh1ImBzr6QJcKbZQruc1bZwtSnR5_0yLmtZe3TW4zgE7IPw/pub?gid=0&single=true&output=csv" -o biotech.csv
-          
+curl -L "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHs1pWzj8NvQSCiQMkK6O8PnBS5mNtWIh1ImBzr6QJcKbZQruc1bZwtSnR5_0yLmtZe3TW4zgE7IPw/pub?gid=0&single=true&output=csv" -o docs/biotech.csv
       - name: Setup Quarto
         uses: quarto-dev/quarto-actions/setup@v2
         
