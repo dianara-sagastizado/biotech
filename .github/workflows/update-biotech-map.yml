@@ -1,0 +1,41 @@
+name: Update and Deploy Site
+
+on:
+  schedule:
+    - cron: '0 11 * * *'  # 11 AM UTC = 6 AM EST
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Download latest data from Google Sheets
+        run: |
+          curl -L "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHs1pWzj8NvQSCiQMkK6O8PnBS5mNtWIh1ImBzr6QJcKbZQruc1bZwtSnR5_0yLmtZe3TW4zgE7IPw/pub?gid=0&single=true&output=csv" -o biotech.csv
+          
+      - name: Setup Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        
+      - name: Render Quarto site
+        run: quarto render
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
