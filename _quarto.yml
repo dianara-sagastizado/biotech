@@ -12,8 +12,6 @@ website:
         text: About
       - href: map.qmd 
         text: Map
-      - href: methods.qmd 
-        text: Methods
      
 format:
   html:

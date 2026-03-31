@@ -4,6 +4,7 @@ format:
   html:
     embed-resources: true
     code-fold: true
+    page-layout: full
 ---
 
 ```{ojs}
@@ -36,9 +37,8 @@ portlandRegion = ({
   features: portlandCounties
 })
 
-width = 800
-
-height = 700
+width = Math.min(window.innerWidth - 300, 1200)  
+height = window.innerHeight - 150  
 
 projection = d3.geoMercator().fitSize([width, height], portlandRegion)
 
@@ -75,18 +75,8 @@ chart = {
     "Data science": "#1abc9c"
   };
 
-  const container = d3.create("div")
-    .style("display", "flex")
-    .style("gap", "20px")
-    .style("align-items", "flex-end");
-  
-  const filterContainer = container.append("div")
-    .style("background", "white")
-    .style("padding", "15px")
-    .style("border", "2px solid #333")
-    .style("border-radius", "8px")
-    .style("font-family", "Arial, sans-serif")
-    .style("min-width", "200px");
+const container = d3.create("div")
+  .style("position", "relative");
 
   filterContainer.append("div")
     .style("font-weight", "bold")
@@ -264,6 +254,20 @@ const closeButton = infoPanel.append("text")
     {name: "Data science", color: "#1abc9c"}
   ];
 
+// Create filter overlay on top of map
+const filterContainer = mapContainer.append("div")
+  .style("position", "absolute")
+  .style("top", "80px")
+  .style("left", "20px")
+  .style("background", "white")
+  .style("padding", "15px")
+  .style("border", "2px solid #333")
+  .style("border-radius", "8px")
+  .style("font-family", "Arial, sans-serif")
+  .style("min-width", "180px")
+  .style("z-index", "1000")
+  .style("box-shadow", "0 2px 8px rgba(0,0,0,0.15)");
+
   specialties.forEach((s, i) => {
     const label = filterContainer.append("label")
       .style("display", "flex").style("align-items", "center")
@@ -292,4 +296,3 @@ const closeButton = infoPanel.append("text")
   return container.node();
 }
 ```
-

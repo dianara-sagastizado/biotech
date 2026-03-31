@@ -2,7 +2,7 @@ name: Update and Deploy Site
 
 on:
   schedule:
-    - cron: '0 11 * * *'  # 11 AM UTC = 6 AM EST
+    - cron: '0 11 * * *'  
   workflow_dispatch:
   push:
     branches:
@@ -23,16 +23,15 @@ jobs:
       
       - name: Download latest data from Google Sheets
         run: |
-          curl -L "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHs1pWzj8NvQSCiQMkK6O8PnBS5mNtWIh1ImBzr6QJcKbZQruc1bZwtSnR5_0yLmtZe3TW4zgE7IPw/pub?gid=0&single=true&output=csv" -o docs/biotech.csv
-    
+          curl -L "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHs1pWzj8NvQSCiQMkK6O8PnBS5mNtWIh1ImBzr6QJcKbZQruc1bZwtSnR5_0yLmtZe3TW4zgE7IPw/pub?gid=0&single=true&output=csv" -o biotech.csv
+          mkdir -p docs
+          cp biotech.csv docs/biotech.csv
+          
       - name: Setup Quarto
         uses: quarto-dev/quarto-actions/setup@v2
         
       - name: Render Quarto site
         run: quarto render
-      
-      - name: Copy CSV to docs for FileAttachment
-        run: cp biotech.csv docs/biotech.csv
         
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
