@@ -78,12 +78,6 @@ chart = {
 const container = d3.create("div")
   .style("position", "relative");
 
-  filterContainer.append("div")
-    .style("font-weight", "bold")
-    .style("margin-bottom", "10px")
-    .style("font-size", "14px")
-    .text("Filter by Specialty:");
-
   const mapContainer = container.append("div");
   
   mapContainer.append("h2")
