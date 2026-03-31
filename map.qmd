@@ -37,8 +37,8 @@ portlandRegion = ({
   features: portlandCounties
 })
 
-width = Math.min(window.innerWidth - 300, 1200)  
-height = window.innerHeight - 150  
+width = 800
+height = 700  
 
 projection = d3.geoMercator().fitSize([width, height], portlandRegion)
 
