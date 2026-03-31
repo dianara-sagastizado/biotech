@@ -10,4 +10,4 @@ In creating a map, a series of video tutorials from Alison Horst were used to cr
 This site may be updated by accessing a master spreadsheet. Using GitHub Actions, the site will automatically update at 6AM PST based on changes made in the spreadsheet.
 
 ## Future use
-In order to adapt this site to different disciplines, simply replace the biotech.csv with a spreadsheet of opportunities/businesses of interest with matching column names. Be sure that the Google spreadsheet file link is published to the web and accessible to the public. Further, the link in the `update-biotech-map.yml` file should be updated to the csv link associated with the Google Sheet.
+In order to adapt this site to different disciplines, simply replace the biotech.csv with a spreadsheet of opportunities/businesses of interest with matching column names. Be sure that the Google spreadsheet file link is published to the web and accessible to the public. Further, the link in the `update-biotech-map.yml` file should be updated to the csv link associated with the Google Sheet. Lastly, change the radiobuttons in the `map.qmd` file to relevant specialties.
