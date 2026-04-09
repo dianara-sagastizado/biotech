@@ -3,7 +3,7 @@ project:
   output-dir: docs
 
 website:
-  title: "Portland Metro Area Biotech Industry Map"
+  title: "Portland Biotech Industry"
   search: false
   sidebar:
     style: "docked"
