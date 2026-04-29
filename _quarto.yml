@@ -1,6 +1,9 @@
 project:
   type: website
   output-dir: docs
+  resources:
+    - biotech.csv
+    - counties-10m.json
 
 website:
   title: "Portland Biotech Industry"
@@ -10,9 +13,9 @@ website:
     contents:
       - href: index.qmd
         text: About
-      - href: map.qmd 
+      - href: map.qmd
         text: Map
-     
+
 format:
   html:
     theme: cosmos
