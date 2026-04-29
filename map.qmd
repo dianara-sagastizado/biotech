@@ -43,7 +43,7 @@ projection = d3.geoMercator().fitSize([width, height], portlandRegion)
 
 path = d3.geoPath().projection(projection)
 
-biotechData = FileAttachment("biotech.csv").csv({typed: true})
+biotechData = await FileAttachment("biotech.csv").csv({typed: true})
 
 chart = {
   function wrapText(text, width) {
