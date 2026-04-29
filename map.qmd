@@ -15,7 +15,7 @@ d3 = require("d3")
 
 topojson = require("topojson")
 
-usData = d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json')
+usData = await FileAttachment("counties-10m.json").json()
 
 portlandMetroFips = [
   "41051",
